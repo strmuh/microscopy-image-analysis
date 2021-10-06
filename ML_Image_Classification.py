@@ -9,6 +9,10 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree   # For decision tree
 from sklearn.metrics import plot_confusion_matrix, multilabel_confusion_matrix, accuracy_score
 from sklearn.model_selection import train_test_split
 import joblib
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import seaborn as sns
 
 class ML_Classification:
     def __init__(self, data):
@@ -147,19 +151,26 @@ class ML_Classification:
         con_matrix = multilabel_confusion_matrix(
             y_tst, predicted_values, labels=labels)
         # Setup an empty Dict to store f1 model scores for each label
+        acc_scores = {}
         f_1_scores = {}
+        rec_scores = {}
+        pres_scores = {}
         for i, j in enumerate(labels):
+            acc = (con_matrix[i][1][1]+con_matrix[i][0][0]) / (con_matrix[i][1][0] + con_matrix[i][1][1]+ con_matrix[i][0][0]+ con_matrix[i][0][1])
             rec = con_matrix[i][1][1] / (con_matrix[i][1][0] + con_matrix[i][1][1])
             pres = con_matrix[i][1][1] / (con_matrix[i][0][1] + con_matrix[i][1][1])
             f_1 = 2 * (pres * rec) / (pres + rec)
             f_1_scores[j] = f_1
+            rec_scores[j] = rec
+            pres_scores[j] = pres
+            acc_scores[j] = acc
 
-        fig, ax = plt.subplots(len(labels), 2, figsize=(12, 7))
+        fig, ax = plt.subplots(3, 2, figsize=(12, 7))
         for axes, cfs_matrix, label in zip(ax.flatten(), con_matrix, labels):
-            self.print_confusion_matrix(cfs_matrix, axes, label, ["N", "Y"])
+            self.print_confusion_matrix(cfs_matrix, axes, label, ["N", "P"])
         fig.tight_layout()
         plt.show()
-        return f_1_scores
+        return f_1_scores, rec_scores, pres_scores, acc_scores
 
 if __name__ == "__main__":
     main()
